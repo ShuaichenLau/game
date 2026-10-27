@@ -1,0 +1,172 @@
+/* ===================================================================
+   style.css — 贪吃蛇页面样式
+   =================================================================== */
+
+/* ── 重置与全局 ──────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg-page:    #0d0d1a;
+  --bg-card:    #1a1a2e;
+  --accent:     #00f3ff;
+  --accent-dim: #0fa3b1;
+  --text:       #eaf4f4;
+  --text-dim:   #8ecae6;
+  --border:     rgba(0, 243, 255, 0.18);
+  --shadow:     rgba(0, 243, 255, 0.12);
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--bg-page);
+  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  color: var(--text);
+  /* 深色放射渐变背景，增加层次感 */
+  background-image: radial-gradient(ellipse at 50% 0%, #1b1040 0%, #0d0d1a 65%);
+}
+
+/* ── 外层卡片 ────────────────────────────────────────────────────── */
+.game-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 28px 28px 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow:
+    0 0 0 1px rgba(0, 243, 255, 0.06),
+    0 8px 40px rgba(0, 0, 0, 0.55),
+    0 0 60px var(--shadow);
+}
+
+/* ── 标题 ────────────────────────────────────────────────────────── */
+.game-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 8px;
+  color: var(--accent);
+  text-shadow: 0 0 14px rgba(0, 243, 255, 0.5);
+  text-transform: uppercase;
+}
+
+/* ── 分数栏 ──────────────────────────────────────────────────────── */
+.score-bar {
+  display: flex;
+  gap: 36px;
+  width: 100%;
+  justify-content: center;
+}
+
+.score-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.score-label {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.score-value {
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  line-height: 1;
+  /* 数字变化时有轻微缩放动画 */
+  transition: transform 0.1s ease;
+}
+
+.score-value.bump {
+  transform: scale(1.2);
+}
+
+/* ── Canvas 容器 ─────────────────────────────────────────────────── */
+.canvas-wrap {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  /* 霓虹边框发光 */
+  box-shadow:
+    0 0 0 2px rgba(0, 243, 255, 0.25),
+    0 0 24px rgba(0, 243, 255, 0.10);
+  line-height: 0; /* 消除 inline 元素底部空隙 */
+}
+
+#gameCanvas {
+  display: block;
+  /* CSS 尺寸跟随画布逻辑尺寸（由 JS 设置 width/height 属性） */
+  max-width: 90vmin;
+  max-height: 90vmin;
+  width: 100%;
+  height: auto;
+  cursor: default;
+  image-rendering: pixelated; /* 保持像素清晰 */
+}
+
+/* ── 底部操作提示 ────────────────────────────────────────────────── */
+.hint-bar {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.hint-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+kbd {
+  display: inline-block;
+  padding: 2px 7px;
+  border: 1px solid rgba(0, 243, 255, 0.3);
+  border-radius: 5px;
+  background: rgba(0, 243, 255, 0.07);
+  font-family: inherit;
+  font-size: 11px;
+  color: var(--accent-dim);
+  white-space: nowrap;
+}
+
+/* ── 响应式 ──────────────────────────────────────────────────────── */
+@media (max-width: 540px) {
+  .game-card {
+    padding: 18px 12px 16px;
+    gap: 14px;
+    border-radius: 14px;
+  }
+
+  .game-title {
+    font-size: 16px;
+    letter-spacing: 5px;
+  }
+
+  .score-value {
+    font-size: 22px;
+  }
+
+  .hint-bar {
+    gap: 10px;
+  }
+}

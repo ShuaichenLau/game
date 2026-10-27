@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>贪吃蛇</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="game-card">
+
+    <!-- 标题 -->
+    <h1 class="game-title">Snake</h1>
+
+    <!-- 分数栏 -->
+    <div class="score-bar">
+      <div class="score-item">
+        <span class="score-label">得分</span>
+        <span class="score-value" id="score">0</span>
+      </div>
+      <div class="score-item">
+        <span class="score-label">最高分</span>
+        <span class="score-value" id="hiscore">0</span>
+      </div>
+    </div>
+
+    <!-- 画布 -->
+    <div class="canvas-wrap">
+      <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <!-- 操作提示 -->
+    <div class="hint-bar">
+      <div class="hint-item">
+        <kbd>↑ ↓ ← →</kbd>
+        <span>或</span>
+        <kbd>W A S D</kbd>
+        <span>移动</span>
+      </div>
+      <div class="hint-item">
+        <kbd>Space</kbd>
+        <span>暂停 / 继续</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ES Module 入口；defer 保证 DOM 已就绪 -->
+  <script type="module" src="js/main.js"></script>
+
+</body>
+</html>
