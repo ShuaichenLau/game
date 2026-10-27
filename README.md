@@ -1,13 +1,14 @@
-# 双游戏合集：中国象棋 & NEON BATTLE 2077
+# 游戏合集：中国象棋 & NEON BATTLE 2077 & 贪吃蛇
 
-一个纯前端、零构建、零第三方依赖的小游戏仓库，包含两款风格完全不同的 Canvas 游戏：
+一个纯前端、零第三方依赖的小游戏仓库，包含三款风格各异的 Canvas 游戏：
 
 | 游戏 | 目录 | 类型 | 技术栈 | 入口 |
 | --- | --- | --- | --- | --- |
-| 中国象棋 · 人机对战 | [`cn_chess/`](./cn_chess) | 棋类 / 人机 AI | 原生 JavaScript、Canvas 2D、Web Audio | `cn_chess/index.html` |
-| NEON BATTLE 2077 · 赛博坦克大战 | [`tank/`](./tank) | 俯视角射击 / 街机 | 原生 JavaScript、Canvas 2D、Web Audio | `tank/index.html` |
+| 中国象棋 · 人机对战 | [`cn_chess/`](./cn_chess) | 棋类 / 人机 AI | 原生 JS、Canvas 2D、Web Audio | `cn_chess/index.html` |
+| NEON BATTLE 2077 · 赛博坦克大战 | [`tank/`](./tank) | 俯视角射击 / 街机 | 原生 JS、Canvas 2D、Web Audio | `tank/index.html` |
+| 贪吃蛇 Snake | [`snake/`](./snake) | 休闲 / 经典 | 原生 JS（ES Module）、Canvas 2D | `snake/index.html` |
 
-两款游戏都不需要 `npm install`、打包或本地服务器，直接用浏览器打开对应的 `index.html` 即可运行。
+所有游戏均不需要 `npm install` 或打包，直接用浏览器打开对应的 `index.html` 即可运行（贪吃蛇因使用 ES Module，建议通过本地服务器访问）。
 
 ---
 
@@ -29,15 +30,28 @@ game/
 │   │   ├── game.js           # 回合流程、悔棋、AI 调度、棋谱
 │   │   └── main.js           # DOM 装配与启动
 │   └── README.md             # 中国象棋完整说明
-└── tank/                     # 赛博坦克大战
+├── tank/                     # 赛博坦克大战
+│   ├── index.html
+│   ├── README.md             # 坦克大战完整说明
+│   └── js/
+│       ├── config.js         # 尺寸、敌人配置、地图、关卡
+│       ├── audio.js          # 赛博合成器音效 + 引擎声
+│       ├── renderer.js       # 全部矢量绘制、HUD、标题 / 过场界面
+│       ├── map.js            # 26×26 网格地形、碰撞与关卡装载
+│       └── game.js           # 状态机、实体、碰撞、输入、主循环
+└── snake/                    # 贪吃蛇
     ├── index.html
-    ├── README.md             # 坦克大战完整说明
+    ├── style.css
+    ├── README.md             # 贪吃蛇完整说明
     └── js/
-        ├── config.js         # 尺寸、敌人配置、地图、关卡
-        ├── audio.js          # 赛博合成器音效 + 引擎声
-        ├── renderer.js       # 全部矢量绘制、HUD、标题 / 过场界面
-        ├── map.js            # 26×26 网格地形、碰撞与关卡装载
-        └── game.js           # 状态机、实体、碰撞、输入、主循环
+        ├── config.js         # 全局配置常量（尺寸、速度、颜色）
+        ├── main.js           # 应用入口，挂载 Game
+        ├── Game.js           # 游戏状态机与主循环
+        ├── Snake.js          # 蛇的数据模型
+        ├── Food.js           # 食物数据模型
+        ├── Collision.js      # 碰撞检测（纯函数）
+        ├── Renderer.js       # Canvas 渲染器
+        └── InputController.js # 键盘输入控制器
 ```
 
 ---
@@ -48,6 +62,13 @@ game/
 
 - 中国象棋：双击 `cn_chess/index.html`
 - 坦克大战：双击 `tank/index.html`
+- 贪吃蛇：建议通过本地服务器访问（ES Module 在 `file://` 下受浏览器限制）
+
+```bash
+# 贪吃蛇本地服务器
+cd snake && python -m http.server 8000
+# 访问 http://localhost:8000
+```
 
 推荐使用较新版本的 Chrome / Edge / Firefox。
 
@@ -159,21 +180,58 @@ game/
 
 ---
 
+## 游戏三：贪吃蛇 Snake
+
+经典贪吃蛇，深色赛博风格界面。
+
+完整说明见 [`snake/README.md`](./snake/README.md)。
+
+### 功能
+
+- 蛇移动、吃食物、身体增长；撞墙 / 撞自身判死。
+- 随机食物（避开蛇身生成）。
+- 得分（每颗 +10），每 5 分自动加速，最快 60 ms/格。
+- 最高分 `localStorage` 持久化（即时写回）。
+- 暂停 / 继续 / 重新开始。
+- 蛇头带眼睛，随移动方向朝向。
+- ES Module 模块化，职责清晰分文件。
+
+### 操作
+
+| 操作 | 按键 |
+| --- | --- |
+| 移动 | `↑` `↓` `←` `→` 或 `W` `A` `S` `D` |
+| 暂停 / 继续 / 重启 | `Space` 或 `Enter` |
+
+### 状态机
+
+```text
+idle ──[方向键]──→ running ──[Space]──→ paused
+                      │                    │
+                  [死亡]       ◄──[Space]──┘
+                      ↓
+                    over ──[Space/Enter]──→ idle
+```
+
+---
+
 ## 技术说明
 
-- **无依赖 / 无构建**：全部为普通 `<script>` 加载的原生 JavaScript，直接 `file://` 打开即可运行。
-- **模块命名空间**：
-  - 象棋：`window.XQ`（`Constants` / `Rules` / `AI` / `Sound` / `BoardView` / `GameController` / `ResultDialog`）。
-  - 坦克：`window.NB`（`Config` / `AudioEngine` / `Renderer` / `Map` / `Game`）。
-- **渲染**：两款游戏均使用 Canvas 2D 矢量绘制；坦克大战额外使用整数倍缩放适配窗口。
-- **音频**：Web Audio API 实时合成，不依赖任何音频素材。
-- **持久化**：坦克大战最高分从 `localStorage` 读取（当前版本未写回）；象棋无持久化状态。
-- **调试入口**：象棋 `window.xiangqi`，坦克 `window.__game`。
+| 项目 | 模块方式 | 命名空间 / 入口 | 持久化 | 调试入口 |
+| --- | --- | --- | --- | --- |
+| 中国象棋 | 普通 `<script>`（IIFE） | `window.XQ` | 无 | `window.xiangqi` |
+| 坦克大战 | 普通 `<script>`（IIFE） | `window.NB` | localStorage 只读 | `window.__game` |
+| 贪吃蛇 | ES Module | — | localStorage 读写 | `import { Game }` |
+
+- **渲染**：三款游戏均使用 Canvas 2D 矢量绘制；坦克大战额外整数倍缩放适配窗口。
+- **音频**：象棋与坦克大战使用 Web Audio API 实时合成，不依赖任何音频文件；贪吃蛇暂无音效。
+- **逻辑 / 渲染分离**：贪吃蛇逻辑用 `setTimeout` 定频驱动，渲染用 `requestAnimationFrame` 独立运行。
 
 ## 兼容性
 
-- 建议使用支持 Canvas 2D、Web Audio、ES6+ 的现代浏览器。
-- 坦克大战首次发声需要一次键盘或鼠标交互（浏览器自动播放策略）。
+- 建议使用支持 Canvas 2D、Web Audio、ES6+ 的现代浏览器（Chrome / Edge / Firefox / Safari 较新版本）。
+- 坦克大战与象棋首次发声需要一次用户交互（浏览器自动播放策略）。
+- 贪吃蛇使用 ES Module，需通过 HTTP 服务器访问（`file://` 在 Chrome 下会被 CORS 策略阻止）。
 
 ## 许可
 
