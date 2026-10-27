@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEON BATTLE 2077 · 赛博坦克大战</title>
+<style>
+  html,body{margin:0;padding:0;background:#06050e;height:100%;display:flex;align-items:center;justify-content:center;font-family:"Segoe UI","Arial Black",sans-serif;overflow:hidden;}
+  #wrap{display:flex;flex-direction:column;align-items:center;gap:10px;}
+  canvas{image-rendering:pixelated;box-shadow:0 0 80px rgba(0,243,255,.12),0 0 0 2px #0a0918,0 0 0 6px #15122e;background:#06050e;outline:none;}
+  .hint{color:#5a6480;font-size:12px;letter-spacing:1px;}
+  .hint b{color:#00f3ff;}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="game" width="696" height="512" tabindex="0"></canvas>
+  <div class="hint"><b>WASD/方向键</b> 移动 · <b>J/空格</b> 射击 · <b>P</b> 暂停 · <b>C</b> CRT · <b>G</b> 辉光 · <b>M</b> 静音 · 2P 方向键+<b>K</b></div>
+</div>
+
+<!-- 模块化加载（普通脚本，file:// 双击即可运行，零构建零依赖） -->
+<script src="js/config.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/renderer.js"></script>
+<script src="js/map.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
