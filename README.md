@@ -1,6 +1,6 @@
-# 游戏合集：中国象棋 & NEON BATTLE 2077 & 贪吃蛇 & 五子棋
+# 游戏合集：中国象棋 & NEON BATTLE 2077 & 贪吃蛇 & 五子棋 & 超级玛丽
 
-一个纯前端、零第三方依赖的小游戏仓库，包含四款风格各异的 Canvas 游戏：
+一个纯前端、零第三方依赖的小游戏仓库，包含五款风格各异的 Canvas 游戏：
 
 | 游戏 | 目录 | 类型 | 技术栈 | 入口 |
 | --- | --- | --- | --- | --- |
@@ -8,8 +8,9 @@
 | NEON BATTLE 2077 · 赛博坦克大战 | [`tank/`](./tank) | 俯视角射击 / 街机 | 原生 JS、Canvas 2D、Web Audio | `tank/index.html` |
 | 贪吃蛇 Snake | [`snake/`](./snake) | 休闲 / 经典 | 原生 JS（ES Module）、Canvas 2D | `snake/index.html` |
 | 五子棋 · 人机对战 | [`gomoku/`](./gomoku) | 棋类 / 人机 AI | 原生 JS（经典 script）、Canvas 2D | `gomoku/index.html` |
+| SUPER MARIO · 超级玛丽 | [`SuperMario/`](./SuperMario) | 平台跳跃 / 经典街机 | 原生 JS（经典 script）、Canvas 2D、Web Audio | `SuperMario/index.html` |
 
-所有游戏均不需要 `npm install` 或打包，直接用浏览器打开对应的 `index.html` 即可运行（贪吃蛇因使用 ES Module，建议通过本地服务器访问；五子棋使用经典 `<script>` 加载，双击即可运行）。
+所有游戏均不需要 `npm install` 或打包，直接用浏览器打开对应的 `index.html` 即可运行（贪吃蛇因使用 ES Module，建议通过本地服务器访问；五子棋与超级玛丽使用经典 `<script>` 加载，双击即可运行）。
 
 ---
 
@@ -53,7 +54,7 @@ game/
 │       ├── Collision.js      # 碰撞检测（纯函数）
 │       ├── Renderer.js       # Canvas 渲染器
 │       └── InputController.js # 键盘输入控制器
-└── gomoku/                   # 五子棋（人机对战）
+├── gomoku/                   # 五子棋（人机对战）
     ├── index.html
     ├── css/style.css
     ├── README.md             # 五子棋完整说明
@@ -67,6 +68,15 @@ game/
         ├── Renderer.js       # Canvas 渲染 + 坐标转换
         ├── InputController.js # 指针事件处理
         └── main.js           # 应用入口
+└── SuperMario/               # 超级玛丽（平台跳跃）
+    ├── index.html            # 入口页面（含 HUD 与样式）
+    ├── README.md             # 超级玛丽完整说明
+    └── js/
+        ├── config.js         # 配置、图块定义、关卡地图、敌人出生点
+        ├── input.js          # 键盘输入处理
+        ├── audio.js          # WebAudio 合成音效
+        ├── renderer.js       # Canvas 渲染（地图/玩家/敌人/特效）
+        └── game.js           # 游戏核心（物理、碰撞、敌人 AI、主循环）
 ```
 
 ---
@@ -79,6 +89,7 @@ game/
 - 坦克大战：双击 `tank/index.html`
 - 贪吃蛇：建议通过本地服务器访问（ES Module 在 `file://` 下受浏览器限制）
 - 五子棋：双击 `gomoku/index.html`（经典 script 加载，无需服务器）
+- 超级玛丽：双击 `SuperMario/index.html`（经典 script 加载，无需服务器）
 
 ```bash
 # 贪吃蛇本地服务器
@@ -269,6 +280,41 @@ cd gomoku && node tests.js   # 规则与 AI 基础测试（49 项）
 
 ---
 
+## 游戏五：SUPER MARIO · 超级玛丽
+
+致敬经典的横版平台跳跃游戏，像素风渲染，零依赖、零构建，双击即玩。
+
+完整说明见 [`SuperMario/README.md`](./SuperMario/README.md)。
+
+### 功能
+
+- **平台跳跃玩法**：从左侧出发向右前进，抵达旗杆处即通关。
+- **两种敌人**：栗子头与乌龟，踩其头顶即可消灭；侧面或底部碰到则损失生命。
+- **金币与砖块**：收集金币得分；顶 `?` 问号块获得金币，顶砖块得分。
+- **生命机制**：3 条命，掉坑或被敌人碰到损失生命，生命耗尽游戏结束。
+- **手感优化**：土狼时间（离开平台后 6 帧内仍可起跳）与跳跃缓冲（落地前 6 帧内按跳也生效）让操作更顺滑；按住跳跃键跳得更高。
+- **像素风视效**：`image-rendering: pixelated` + 纯色块绘制角色与场景。
+- **合成音效**：Web Audio 程序化合成，无任何音频资源文件。
+
+### 操作
+
+| 操作 | 按键 |
+| --- | --- |
+| 移动 | `←` `→` 或 `A` `D` |
+| 跳跃（按住更高） | `↑` / `W` / `空格` |
+| 下蹲 | `↓` 或 `S` |
+| 重新开始 | `R` |
+| 暂停 / 继续 | `P` |
+| 静音 | `M` |
+
+### 扩展提示
+
+- 在 `js/config.js` 的 `MAP_STR` 中编辑关卡地图（`#` 地面、`B` 砖块、`?` 问号块、`|` 水管、`F` 旗杆）。
+- 在 `ENEMY_SPAWNS` 中添加敌人出生点（`goomba` / `koopa`）。
+- 道具（蘑菇变大、无敌星等）可通过扩展 `bumpBlock` 逻辑实现。
+
+---
+
 ## 技术说明
 
 | 项目 | 模块方式 | 命名空间 / 入口 | 持久化 | 调试入口 |
@@ -277,17 +323,18 @@ cd gomoku && node tests.js   # 规则与 AI 基础测试（49 项）
 | 坦克大战 | 普通 `<script>`（IIFE） | `window.NB` | localStorage 只读 | `window.__game` |
 | 贪吃蛇 | ES Module | — | localStorage 读写 | `import { Game }` |
 | 五子棋 | 普通 `<script>`（命名空间） | `window.Gomoku` | 无 | `window.Gomoku` |
+| 超级玛丽 | 普通 `<script>`（经典顺序加载） | `window.Game` | 无 | `window.Game` |
 
-- **渲染**：四款游戏均使用 Canvas 2D 矢量绘制；坦克大战额外整数倍缩放适配窗口。
-- **音频**：象棋与坦克大战使用 Web Audio API 实时合成，不依赖任何音频文件；贪吃蛇、五子棋暂无音效。
+- **渲染**：五款游戏均使用 Canvas 2D 绘制；坦克大战额外整数倍缩放适配窗口，超级玛丽使用像素风色块绘制角色与场景。
+- **音频**：象棋、坦克大战与超级玛丽使用 Web Audio API 实时合成，不依赖任何音频文件；贪吃蛇、五子棋暂无音效。
 - **逻辑 / 渲染分离**：贪吃蛇逻辑用 `setTimeout` 定频驱动，渲染用 `requestAnimationFrame` 独立运行；五子棋为回合制，仅在状态/悬停/尺寸变化时重绘。
 
 ## 兼容性
 
 - 建议使用支持 Canvas 2D、Web Audio、ES6+、Pointer Events 的现代浏览器（Chrome / Edge / Firefox / Safari 较新版本）。
-- 坦克大战与象棋首次发声需要一次用户交互（浏览器自动播放策略）。
+- 坦克大战、象棋与超级玛丽首次发声需要一次用户交互（浏览器自动播放策略）。
 - 贪吃蛇使用 ES Module，需通过 HTTP 服务器访问（`file://` 在 Chrome 下会被 CORS 策略阻止）。
-- 五子棋使用经典 `<script>` 加载，可直接双击 `index.html` 运行，无需服务器。
+- 五子棋与超级玛丽使用经典 `<script>` 加载，可直接双击 `index.html` 运行，无需服务器。
 
 ## 许可
 
