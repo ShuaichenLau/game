@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>五子棋 · 人机对战</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="app">
+
+    <header class="app-header">
+      <div class="title-row">
+        <span class="title-stone title-stone--black" aria-hidden="true"></span>
+        <h1 class="app-title">五子棋</h1>
+        <span class="title-stone title-stone--white" aria-hidden="true"></span>
+      </div>
+      <p class="app-subtitle">人机对战 · 本地启发式 AI · 无禁手规则</p>
+      <div class="title-divider" aria-hidden="true"></div>
+    </header>
+
+    <div class="board-area">
+
+      <!-- 棋盘画布（绝对居中） -->
+      <div id="canvas-wrap">
+        <canvas id="board-canvas"></canvas>
+      </div>
+
+      <!-- 左侧信息栏（不参与棋盘居中） -->
+      <aside class="sidebar">
+
+        <div class="panel">
+          <div class="panel-title">对局信息</div>
+          <div class="badge-row">
+            <span id="player-badge" class="badge badge-black">玩家 · 黑棋</span>
+            <span id="ai-badge" class="badge badge-white">电脑 · 白棋</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">当前回合</div>
+          <div id="turn-text">—</div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">对局结果</div>
+          <div id="status-text" class="status-text">等待开始</div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">落子数</div>
+          <div class="count-row">
+            <div class="count-box">
+              <span class="count-box-label">黑棋</span>
+              <span id="black-count" class="count-box-value">0</span>
+            </div>
+            <div class="count-box">
+              <span class="count-box-label">白棋</span>
+              <span id="white-count" class="count-box-value">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">选择颜色</div>
+          <div class="color-options">
+            <label>
+              <input type="radio" name="color-choice" value="black" checked />
+              执黑（先手）
+            </label>
+            <label>
+              <input type="radio" name="color-choice" value="white" />
+              执白（后手）
+            </label>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">操作</div>
+          <div class="btn-group">
+            <button id="start-btn" class="btn btn-primary">开始游戏</button>
+            <button id="restart-btn" class="btn btn-danger" disabled>重新开始</button>
+            <button id="undo-btn" class="btn" disabled>悔棋</button>
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+
+  </div>
+
+  <!-- 经典 script 加载（非 ES Module），保证双击 index.html 即可运行。
+       按依赖顺序加载，每个文件挂载到 window.Gomoku 命名空间 -->
+  <script src="js/config.js"></script>
+  <script src="js/Board.js"></script>
+  <script src="js/RuleChecker.js"></script>
+  <script src="js/AiPlayer.js"></script>
+  <script src="js/Game.js"></script>
+  <script src="js/Renderer.js"></script>
+  <script src="js/InputController.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+</html>
