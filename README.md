@@ -1,14 +1,15 @@
-# 游戏合集：中国象棋 & NEON BATTLE 2077 & 贪吃蛇
+# 游戏合集：中国象棋 & NEON BATTLE 2077 & 贪吃蛇 & 五子棋
 
-一个纯前端、零第三方依赖的小游戏仓库，包含三款风格各异的 Canvas 游戏：
+一个纯前端、零第三方依赖的小游戏仓库，包含四款风格各异的 Canvas 游戏：
 
 | 游戏 | 目录 | 类型 | 技术栈 | 入口 |
 | --- | --- | --- | --- | --- |
 | 中国象棋 · 人机对战 | [`cn_chess/`](./cn_chess) | 棋类 / 人机 AI | 原生 JS、Canvas 2D、Web Audio | `cn_chess/index.html` |
 | NEON BATTLE 2077 · 赛博坦克大战 | [`tank/`](./tank) | 俯视角射击 / 街机 | 原生 JS、Canvas 2D、Web Audio | `tank/index.html` |
 | 贪吃蛇 Snake | [`snake/`](./snake) | 休闲 / 经典 | 原生 JS（ES Module）、Canvas 2D | `snake/index.html` |
+| 五子棋 · 人机对战 | [`gomoku/`](./gomoku) | 棋类 / 人机 AI | 原生 JS（经典 script）、Canvas 2D | `gomoku/index.html` |
 
-所有游戏均不需要 `npm install` 或打包，直接用浏览器打开对应的 `index.html` 即可运行（贪吃蛇因使用 ES Module，建议通过本地服务器访问）。
+所有游戏均不需要 `npm install` 或打包，直接用浏览器打开对应的 `index.html` 即可运行（贪吃蛇因使用 ES Module，建议通过本地服务器访问；五子棋使用经典 `<script>` 加载，双击即可运行）。
 
 ---
 
@@ -39,19 +40,33 @@ game/
 │       ├── renderer.js       # 全部矢量绘制、HUD、标题 / 过场界面
 │       ├── map.js            # 26×26 网格地形、碰撞与关卡装载
 │       └── game.js           # 状态机、实体、碰撞、输入、主循环
-└── snake/                    # 贪吃蛇
+├── snake/                    # 贪吃蛇
+│   ├── index.html
+│   ├── style.css
+│   ├── README.md             # 贪吃蛇完整说明
+│   └── js/
+│       ├── config.js         # 全局配置常量（尺寸、速度、颜色）
+│       ├── main.js           # 应用入口，挂载 Game
+│       ├── Game.js           # 游戏状态机与主循环
+│       ├── Snake.js          # 蛇的数据模型
+│       ├── Food.js           # 食物数据模型
+│       ├── Collision.js      # 碰撞检测（纯函数）
+│       ├── Renderer.js       # Canvas 渲染器
+│       └── InputController.js # 键盘输入控制器
+└── gomoku/                   # 五子棋（人机对战）
     ├── index.html
-    ├── style.css
-    ├── README.md             # 贪吃蛇完整说明
+    ├── css/style.css
+    ├── README.md             # 五子棋完整说明
+    ├── tests.js              # 规则与 AI 测试（node tests.js）
     └── js/
-        ├── config.js         # 全局配置常量（尺寸、速度、颜色）
-        ├── main.js           # 应用入口，挂载 Game
-        ├── Game.js           # 游戏状态机与主循环
-        ├── Snake.js          # 蛇的数据模型
-        ├── Food.js           # 食物数据模型
-        ├── Collision.js      # 碰撞检测（纯函数）
-        ├── Renderer.js       # Canvas 渲染器
-        └── InputController.js # 键盘输入控制器
+        ├── config.js         # 配置常量 + AI 评分权重
+        ├── Board.js          # 棋盘数据模型
+        ├── RuleChecker.js    # 胜负/平局检测（纯函数）
+        ├── AiPlayer.js       # 本地 AI 启发式策略
+        ├── Game.js           # 对局状态机（回合/悔棋/重开/AI调度）
+        ├── Renderer.js       # Canvas 渲染 + 坐标转换
+        ├── InputController.js # 指针事件处理
+        └── main.js           # 应用入口
 ```
 
 ---
@@ -63,6 +78,7 @@ game/
 - 中国象棋：双击 `cn_chess/index.html`
 - 坦克大战：双击 `tank/index.html`
 - 贪吃蛇：建议通过本地服务器访问（ES Module 在 `file://` 下受浏览器限制）
+- 五子棋：双击 `gomoku/index.html`（经典 script 加载，无需服务器）
 
 ```bash
 # 贪吃蛇本地服务器
@@ -215,6 +231,44 @@ idle ──[方向键]──→ running ──[Space]──→ paused
 
 ---
 
+## 游戏四：五子棋 · 人机对战
+
+本地双人之外的“玩家对战电脑”模式五子棋，电脑 AI 完全在本地运行，无需联网。
+
+完整说明见 [`gomoku/README.md`](./gomoku/README.md)。
+
+### 功能
+
+- **人机对战**：开始前可选执黑（先手）或执白（后手）；选白时电脑自动先手。
+- **无禁手自由规则**：横、纵、两条斜线任意方向连 5 子及以上即胜，不实现禁手。
+- **本地 AI（启发式）**：优先一步取胜 → 优先封堵玩家一步取胜 → 综合评估活四/冲四/活三/眠三/活二/眠二等棋形；空棋盘落中心，同分靠中。
+- **交互**：最后一手标记、获胜连线高亮、鼠标悬停预览、电脑思考中禁止落子。
+- **悔棋**：电脑思考中悔棋只撤玩家一手；电脑已回应则撤销电脑回应 + 玩家上一手；玩家执白时电脑开局首手保留；结束后也可悔棋。
+- **AI 结果失效机制**：版本号 + 定时器清理，保证悔棋/重开后旧 AI 结果不再落子。
+- **棋盘绝对居中**：信息栏不参与居中，固定于棋盘左侧；标题放大显示。
+
+### 操作
+
+| 操作 | 方式 |
+| --- | --- |
+| 开始游戏 | 选择执黑/执白后点击“开始游戏” |
+| 落子 | 点击 / 触摸棋盘交叉点 |
+| 悔棋 / 重新开始 | 侧边栏按钮 |
+
+### AI 说明与局限
+
+- 识别连续子构成的棋形；不识别带空档的“跳活三”（会低估为活二/眠二）。
+- 一步成五的跳四由穷举扫描保证不漏；双活三等多点同时威胁按评分选最优应对。
+- 不做多层搜索、不保证必胜，属启发式基本对弈水平。
+
+### 测试
+
+```bash
+cd gomoku && node tests.js   # 规则与 AI 基础测试（49 项）
+```
+
+---
+
 ## 技术说明
 
 | 项目 | 模块方式 | 命名空间 / 入口 | 持久化 | 调试入口 |
@@ -222,16 +276,18 @@ idle ──[方向键]──→ running ──[Space]──→ paused
 | 中国象棋 | 普通 `<script>`（IIFE） | `window.XQ` | 无 | `window.xiangqi` |
 | 坦克大战 | 普通 `<script>`（IIFE） | `window.NB` | localStorage 只读 | `window.__game` |
 | 贪吃蛇 | ES Module | — | localStorage 读写 | `import { Game }` |
+| 五子棋 | 普通 `<script>`（命名空间） | `window.Gomoku` | 无 | `window.Gomoku` |
 
-- **渲染**：三款游戏均使用 Canvas 2D 矢量绘制；坦克大战额外整数倍缩放适配窗口。
-- **音频**：象棋与坦克大战使用 Web Audio API 实时合成，不依赖任何音频文件；贪吃蛇暂无音效。
-- **逻辑 / 渲染分离**：贪吃蛇逻辑用 `setTimeout` 定频驱动，渲染用 `requestAnimationFrame` 独立运行。
+- **渲染**：四款游戏均使用 Canvas 2D 矢量绘制；坦克大战额外整数倍缩放适配窗口。
+- **音频**：象棋与坦克大战使用 Web Audio API 实时合成，不依赖任何音频文件；贪吃蛇、五子棋暂无音效。
+- **逻辑 / 渲染分离**：贪吃蛇逻辑用 `setTimeout` 定频驱动，渲染用 `requestAnimationFrame` 独立运行；五子棋为回合制，仅在状态/悬停/尺寸变化时重绘。
 
 ## 兼容性
 
-- 建议使用支持 Canvas 2D、Web Audio、ES6+ 的现代浏览器（Chrome / Edge / Firefox / Safari 较新版本）。
+- 建议使用支持 Canvas 2D、Web Audio、ES6+、Pointer Events 的现代浏览器（Chrome / Edge / Firefox / Safari 较新版本）。
 - 坦克大战与象棋首次发声需要一次用户交互（浏览器自动播放策略）。
 - 贪吃蛇使用 ES Module，需通过 HTTP 服务器访问（`file://` 在 Chrome 下会被 CORS 策略阻止）。
+- 五子棋使用经典 `<script>` 加载，可直接双击 `index.html` 运行，无需服务器。
 
 ## 许可
 

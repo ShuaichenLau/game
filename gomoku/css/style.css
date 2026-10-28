@@ -1,0 +1,410 @@
+/* ===================================================================
+   style.css — 五子棋（人机对战）页面样式
+   木质棋盘风格，深色背景，棋盘居中，侧边栏展示状态与操作
+   =================================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg-page: #1f2430;
+  --bg-panel: #2b3142;
+  --bg-card: #343b4e;
+  --border: rgba(200, 180, 140, 0.18);
+  --text: #eee6d6;
+  --text-dim: #9aa3b8;
+  --accent: #d9a85c;
+  --accent-dark: #8a5a1f;
+  --shadow: rgba(0, 0, 0, 0.5);
+  --danger: #c0392b;
+  --danger-hover: #e05a4a;
+  --btn-bg: #454d63;
+  --btn-hover: #58607a;
+  --btn-active: #333a4c;
+  /* 棋盘实际 CSS 显示尺寸，由 main.js 动态写入，供左侧信息栏紧贴棋盘定位 */
+  --board-size: 832px;
+}
+
+html, body {
+  min-height: 100vh;
+  background: var(--bg-page);
+  color: var(--text);
+  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  font-size: 15px;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px 28px;
+  gap: 16px;
+  min-height: 100vh;
+}
+
+/* ── 顶部标题区 ─────────────────────────────────────────────── */
+.app-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.app-title {
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: 14px;
+  margin-right: -14px; /* 抵消末字后的字距，保持视觉居中 */
+  /* 金色渐变描字 + 呼吸发光 */
+  background: linear-gradient(180deg, #f7dc94 0%, #e2b25f 50%, #b07e2e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: title-glow 3.6s ease-in-out infinite;
+}
+
+@keyframes title-glow {
+  0%, 100% { filter: drop-shadow(0 2px 8px rgba(217, 168, 92, 0.35)); }
+  50%      { filter: drop-shadow(0 2px 20px rgba(217, 168, 92, 0.65)); }
+}
+
+/* 标题两侧装饰棋子（纯 CSS 渐变，无外部素材） */
+.title-stone {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.55),
+    inset 0 -3px 5px rgba(0, 0, 0, 0.28);
+}
+
+.title-stone--black {
+  background: radial-gradient(circle at 35% 30%, #6a6a6a, #1c1c1c 70%);
+}
+
+.title-stone--white {
+  background: radial-gradient(circle at 35% 30%, #ffffff, #d6d6cf 75%);
+}
+
+.app-subtitle {
+  font-size: 13px;
+  letter-spacing: 5px;
+  color: var(--text-dim);
+}
+
+.title-divider {
+  width: 260px;
+  height: 1px;
+  margin-top: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.6;
+}
+
+.board-area {
+  /* 标题下方占据剩余高度，棋盘在此区域内上下左右居中 */
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+#canvas-wrap {
+  flex: 0 0 auto;
+  max-width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 4px var(--accent-dark),
+    0 10px 30px var(--shadow);
+  line-height: 0;
+  touch-action: none;
+}
+
+#board-canvas {
+  display: block;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+/* ── 侧边栏 ───────────────────────────────────────────────── */
+.sidebar {
+  /* 绝对定位到棋盘左侧，且“紧贴棋盘”（右边缘锚定在棋盘左边缘外侧 24px），
+     不参与棋盘的水平居中 */
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: calc(50% + var(--board-size) / 2 + 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 240px;
+  max-height: calc(100% - 24px);
+  overflow-y: auto;
+}
+
+.panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: 0 4px 14px var(--shadow);
+}
+
+.panel-title {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* ── 颜色徽标 ─────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.badge::before {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+
+.badge-black::before {
+  background: radial-gradient(circle at 35% 30%, #5a5a5a, #1c1c1c 70%);
+}
+
+.badge-white::before {
+  background: radial-gradient(circle at 35% 30%, #ffffff, #d8d8d2 70%);
+}
+
+.badge-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── 当前回合 ─────────────────────────────────────────────── */
+#turn-text {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* ── 状态 ─────────────────────────────────────────────────── */
+.status-text {
+  font-size: 15px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: var(--bg-panel);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.status-playing { color: var(--text); }
+.status-won     { color: #f5c542; background: rgba(245, 197, 66, 0.12); }
+.status-lost    { color: #f08c8c; background: rgba(240, 140, 140, 0.12); }
+.status-draw    { color: #9fa8b3; background: rgba(159, 168, 179, 0.12); }
+
+/* ── 落子数 ───────────────────────────────────────────────── */
+.count-row {
+  display: flex;
+  gap: 10px;
+}
+
+.count-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: var(--bg-panel);
+  border-radius: 8px;
+  padding: 10px 4px;
+}
+
+.count-box-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+.count-box-value {
+  font-size: 24px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+/* ── 颜色选择 ─────────────────────────────────────────────── */
+.color-options {
+  display: flex;
+  gap: 12px;
+}
+
+.color-options label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 6px;
+  background: var(--bg-panel);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  border: 1px solid transparent;
+  transition: border-color 0.15s ease;
+}
+
+.color-options label:hover {
+  border-color: var(--accent);
+}
+
+.color-options input {
+  cursor: pointer;
+}
+
+.color-options label:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── 按钮 ─────────────────────────────────────────────────── */
+.btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--btn-bg);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--btn-hover);
+  border-color: var(--accent);
+}
+
+.btn:active:not(:disabled) {
+  background: var(--btn-active);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #3f5d3f;
+  border-color: rgba(120, 180, 120, 0.4);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #4d704d;
+  border-color: #9cc09c;
+}
+
+.btn-danger {
+  border-color: rgba(192, 57, 43, 0.45);
+  color: #f0b7ae;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--danger);
+  border-color: var(--danger-hover);
+  color: #fff;
+}
+
+/* ── 响应式 ───────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .app-title {
+    font-size: 30px;
+    letter-spacing: 8px;
+    margin-right: -8px;
+  }
+
+  .title-row {
+    gap: 14px;
+  }
+
+  .title-stone {
+    width: 20px;
+    height: 20px;
+  }
+
+  .app-subtitle {
+    font-size: 11px;
+    letter-spacing: 3px;
+  }
+
+  .title-divider {
+    width: 180px;
+  }
+
+  .board-area {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* 窄屏：信息栏回到文档流，棋盘在上、信息栏在下 */
+  .sidebar {
+    position: static;
+    transform: none;
+    width: 100%;
+    max-width: 640px;
+    max-height: none;
+    overflow-y: visible;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .panel {
+    flex: 1 1 150px;
+  }
+
+  .btn-group {
+    flex-direction: row;
+    flex: 1 1 100%;
+  }
+
+  .btn {
+    flex: 1;
+  }
+}
